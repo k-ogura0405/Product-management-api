@@ -1,11 +1,13 @@
 // app.js - Simple front-end for Product Management API
 
-const API_BASE = '/products'; // Assuming REST endpoints under /products
+const API_BASE = '/api/products'; // REST endpoints under /api/products
 
 document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
   const form = document.getElementById('product-form');
   form.addEventListener('submit', onSubmit);
+  const tbody = document.getElementById('products-body');
+  tbody.addEventListener('click', onTableAction);
 });
 
 function onSubmit(event) {
@@ -15,7 +17,7 @@ function onSubmit(event) {
   const price = Number(document.getElementById('price').value);
   if (!name || isNaN(price)) return alert('Please fill all fields');
 
-  const payload = { name, price };
+  const payload = { name, price, stock: 0, description: '' };
   const method = id ? 'PUT' : 'POST';
   const url = id ? `${API_BASE}/${id}` : API_BASE;
 
@@ -54,7 +56,6 @@ function renderProducts(products) {
       </td>`;
     tbody.appendChild(tr);
   });
-  tbody.addEventListener('click', onTableAction);
 }
 
 function onTableAction(event) {
@@ -91,6 +92,9 @@ function clearForm() {
 function handleResponse(response) {
   if (!response.ok) {
     return response.text().then(text => { throw new Error(text || response.statusText); });
+  }
+  if (response.status === 204) {
+    return null;
   }
   return response.json();
 }
