@@ -1,6 +1,7 @@
 package com.example.producmanagementapi.repository;
 
 import com.example.producmanagementapi.dto.Product;
+import com.example.producmanagementapi.dto.PagedResult;
 import com.example.producmanagementapi.exception.ProductNotFoundException;
 import com.example.producmanagementapi.mapper.ProductMapper;
 import org.springframework.stereotype.Repository;
@@ -38,4 +39,14 @@ public class ProductRepository {
     public boolean delete(Long id) {
         return productMapper.delete(id) == 1;
     }
+
+    // ----- Pagination & filter -----
+    public List<Product> findByCriteria(String keyword, Integer minPrice, Integer maxPrice, int offset, int limit) {
+        return productMapper.findByCriteria(keyword, minPrice, maxPrice, offset, limit);
+    }
+
+    public long countByCriteria(String keyword, Integer minPrice, Integer maxPrice) {
+        return productMapper.countByCriteria(keyword, minPrice, maxPrice);
+    }
 }
+

@@ -1,5 +1,6 @@
 package com.example.producmanagementapi.service;
 
+import com.example.producmanagementapi.dto.PagedResult;
 import com.example.producmanagementapi.dto.Product;
 import com.example.producmanagementapi.exception.ProductNotFoundException;
 import com.example.producmanagementapi.repository.ProductRepository;
@@ -41,7 +42,6 @@ public class ProductService {
         if (existingProduct == null) {
             throw new ProductNotFoundException(id);
         }
-
         product.setId(id);
         product.setCreatedAt(existingProduct.getCreatedAt());
         return productRepository.update(product);
@@ -52,5 +52,20 @@ public class ProductService {
         if (!productRepository.delete(id)) {
             throw new ProductNotFoundException(id);
         }
+    }
+
+    /**
+     * Pagination & filter API
+     */
+    public PagedResult<Product> findPaged(int page, int size, String keyword, Integer minPrice, Integer maxPrice) {
+        int offset = page * size;
+        List<Product> content = productRepository.findByCriteria(keyword, minPrice, maxPrice, offset, size);
+        long total = productRepository.countByCriteria(keyword, minPrice, maxPrice);
+        PagedResult<Product> result = new PagedResult<>();
+        result.setContent(content);
+        result.setTotalElements(total);
+        result.setPageNumber(page);
+        result.setPageSize(size);
+        return result;
     }
 }

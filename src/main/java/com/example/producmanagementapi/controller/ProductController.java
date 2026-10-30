@@ -1,5 +1,6 @@
 package com.example.producmanagementapi.controller;
 
+import com.example.producmanagementapi.dto.PagedResult;
 import com.example.producmanagementapi.dto.Product;
 import com.example.producmanagementapi.service.ProductService;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    // Existing CRUD endpoints
     @GetMapping
     public ResponseEntity<List<Product>> findAll() {
         List<Product> products = productService.findAll();
@@ -36,10 +38,8 @@ public class ProductController {
     public ResponseEntity<Product> create(@Valid @RequestBody Product product,
                                           UriComponentsBuilder uriBuilder) {
         Product createdProduct = productService.save(product);
-
         URI location = uriBuilder.path("/api/products/{id}")
                 .buildAndExpand(createdProduct.getId()).toUri();
-
         return ResponseEntity.created(location).body(createdProduct);
     }
 
@@ -54,5 +54,17 @@ public class ProductController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // New paginated, searchable endpoint
+    @GetMapping("/search")
+    public ResponseEntity<PagedResult<Product>> search(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice) {
+        PagedResult<Product> result = productService.findPaged(page, size, keyword, minPrice, maxPrice);
+        return ResponseEntity.ok(result);
     }
 }
